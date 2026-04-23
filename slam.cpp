@@ -410,8 +410,8 @@ void GraphSlamNode::updateMap(const sensor_msgs::msg::LaserScan::ConstSharedPtr 
       log_odds_map.assign(map_.info.width * map_.info.height, 0); // 전체를 0으로 다시 채운다
   }
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr last_scan = current_scan;
-    Eigen::Vector3d posee = pose;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr last_scan = past_scans_.back();
+    Eigen::Vector3d posee = slam_->getOptimizedPose();
 
     double robot_x = posee[0];
     double robot_y = posee[1];
