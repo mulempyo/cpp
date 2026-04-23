@@ -182,11 +182,11 @@ namespace graph_slam {
     double icp_dy = T(1, 3);
     double icp_theta = std::atan2(T(1,0), T(0,0));
 
-    if(std::abs(icp_dx) < 0.01 && std::abs(icp_dy) < 0.01 && std::abs(icp_theta) < 0.002){
+    /*if(std::abs(icp_dx) < 0.01 && std::abs(icp_dy) < 0.01 && std::abs(icp_theta) < 0.002){
        icp_dx = 0.0;
        icp_dy = 0.0;
        icp_theta = 0.0;
-    }
+    }*/
 
     if(std::abs(odom_dx) < 0.00001 && std::abs(odom_dy) < 0.0001 && std::abs(odom_dtheta) < 0.001){
        icp_dx = 0.0;
