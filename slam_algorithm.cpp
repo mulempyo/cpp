@@ -209,11 +209,11 @@ namespace graph_slam {
           << " dy_error: " << dy_error
           << " dtheta_error: " << dtheta_error << std::endl;
 
-    bool good_icp = std::abs(dx_error) < 0.01 && std::abs(dy_error) < 0.01 && std::abs(dtheta_error) < 0.02;
+    bool good_icp = std::abs(dx_error) < 0.01 && std::abs(dy_error) < 0.001 && std::abs(dtheta_error) < 0.02;
 
     double fused_dx = dx_local;
     double fused_dy = dy_local;
-    double fused_dtheta = odom_dtheta;
+    double fused_dtheta = dtheta_error;
  
     if(good_icp && !(odom_step < 0.003 && std::abs(odom_dtheta) < 0.003)){
         double alpha_pos = 0.3;
