@@ -158,6 +158,8 @@ namespace graph_slam {
         return Eigen::Vector3d::Zero();
     }
 
+    static double odom_dist = 0.0;
+
     // odom relative motion in previous local(base) frame
     double odom_dx = current_pose.x() - previous_pose.x();
     double odom_dy = current_pose.y() - previous_pose.y();
@@ -169,20 +171,30 @@ namespace graph_slam {
     double dx_local =  std::cos(yaw1) * odom_dx + std::sin(yaw1) * odom_dy;
     double dy_local = -std::sin(yaw1) * odom_dx + std::cos(yaw1) * odom_dy;
 
+    std::cout << "dx_local: " << dx_local
+          << " dy_local: " << dy_local
+          << " odom_dtheta: " << odom_dtheta << std::endl;
+
     init_guess(0,0) = std::cos(odom_dtheta);
     init_guess(0,1) = -std::sin(odom_dtheta);
     init_guess(1,0) = std::sin(odom_dtheta);
     init_guess(1,1) = std::cos(odom_dtheta);
     init_guess(0,3) = dx_local;
     init_guess(1,3) = dy_local;
-
+    
     Eigen::Matrix4f T = runICPCUDA(current_scan, previous_scan, 20, init_guess);
 
     double icp_dx = T(0, 3);
     double icp_dy = T(1, 3);
     double icp_theta = std::atan2(T(1,0), T(0,0));
 
-    if(std::abs(odom_dx) < 0.00001 && std::abs(odom_dy) < 0.0001 && std::abs(odom_dtheta) < 0.001){
+    std::cout << "icp_dx: " << icp_dx
+          << " icp_dy: " << icp_dy
+          << " icp_theta: " << icp_theta << std::endl;
+
+    double odom_step = std::hypot(dx_local, dy_local);      
+
+    if(odom_step < 0.003 && std::abs(odom_dtheta) < 0.003){
        icp_dx = 0.0;
        icp_dy = 0.0;
        icp_theta = 0.0;
@@ -198,8 +210,6 @@ namespace graph_slam {
     double fused_dx = dx_local;
     double fused_dy = dy_local;
     double fused_dtheta = odom_dtheta;
-
-    double odom_step = std::hypot(dx_local, dy_local);
  
     if(good_icp && !(odom_step < 0.003 && std::abs(odom_dtheta) < 0.003)){
         double alpha_pos = 0.3;
@@ -210,8 +220,10 @@ namespace graph_slam {
     }
 
     fused_dist += std::hypot(fused_dx, fused_dy);
+    odom_dist += std::hypot(dx_local, dy_local);
 
     std::cout << "fused dist: " << fused_dist << std::endl;
+    std::cout << "odom_dist: " << odom_dist << std::endl;
 
     return Eigen::Vector3d(
         fused_dx,
