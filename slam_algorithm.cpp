@@ -194,7 +194,7 @@ namespace graph_slam {
 
     double odom_step = std::hypot(dx_local, dy_local);      
 
-    if(odom_step < 0.003 && std::abs(odom_dtheta) < 0.003){
+    if(std::abs(dx_local) < 1e-08 && std::abs(dy_loal) < 1e-05 && std::abs(odom_dtheta) < 0.00001){
        icp_dx = 0.0;
        icp_dy = 0.0;
        icp_theta = 0.0;
@@ -205,19 +205,23 @@ namespace graph_slam {
     double dy_error = icp_dy - odom_dy;
     double dtheta_error = normalizeAngle(icp_theta - odom_dtheta);
 
-    bool good_icp = std::abs(dx_error) < 0.01 && std::abs(dy_error) < 0.01 && std::abs(dtheta_error) < 0.02;
+    std::cout << "dx_error: " << dx_error
+          << " dy_error: " << dy_error
+          << " dtheta_error: " << dtheta_error << std::endl;
+
+    //bool good_icp = std::abs(dx_error) < 0.01 && std::abs(dy_error) < 0.01 && std::abs(dtheta_error) < 0.02;
 
     double fused_dx = dx_local;
     double fused_dy = dy_local;
     double fused_dtheta = odom_dtheta;
  
-    if(good_icp && !(odom_step < 0.003 && std::abs(odom_dtheta) < 0.003)){
+    //if(good_icp){
         double alpha_pos = 0.3;
         double alpha_yaw = 0.4;
         fused_dx = (1.0 - alpha_pos) * dx_local + alpha_pos * icp_dx;
         fused_dy = (1.0 - alpha_pos) * dy_local + alpha_pos * icp_dy;
         fused_dtheta = normalizeAngle((1.0 - alpha_yaw) * odom_dtheta + alpha_yaw * icp_theta);
-    }
+    //}
 
     fused_dist += std::hypot(fused_dx, fused_dy);
     odom_dist += std::hypot(dx_local, dy_local);
