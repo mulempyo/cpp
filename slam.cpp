@@ -314,7 +314,7 @@ void GraphSlamNode::laserCallback(const std::shared_ptr<const sensor_msgs::msg::
     if ((laser_count_ % throttle_scans_) != 0)
         return;
 
-    current_scan = laserScanToPointCloud(scan);
+    current_scan = laserScanToPointCloud(*scan);
 
     if (current_scan->empty()) {
         return;
@@ -373,20 +373,21 @@ void GraphSlamNode::laserCallback(const std::shared_ptr<const sensor_msgs::msg::
 }
 
 
-pcl::PointCloud<pcl::PointXYZ>::Ptr GraphSlamNode::laserScanToPointCloud(const sensor_msgs::msg::LaserScan::ConstSharedPtr scan) {
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>());
+pcl::PointCloud<pcl::PointXYZ>::Ptr GraphSlamNode::laserScanToPointCloud(const sensor_msgs::msg::LaserScan& scan) {
+    auto cloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(
+        new pcl::PointCloud<pcl::PointXYZ>());
 
-    double angle = scan->angle_min;
-    for (size_t i = 0; i < scan->ranges.size(); ++i) {
-        if (std::isfinite(scan->ranges[i])) {
+    double angle = scan.angle_min;
+    for (auto r : scan.ranges) {
+        if (std::isfinite(r)) {
             pcl::PointXYZ point;
-            point.x = scan->ranges[i] * cos(angle);
-            point.y = scan->ranges[i] * sin(angle);
+            point.x = r * cos(angle);
+            point.y = r * sin(angle);
             point.z = 0.0;  
 
             cloud->push_back(point);
         }
-        angle += scan->angle_increment;
+        angle += scan.angle_increment;
     }
     return cloud;
 }
