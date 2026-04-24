@@ -209,19 +209,19 @@ namespace graph_slam {
           << " dy_error: " << dy_error
           << " dtheta_error: " << dtheta_error << std::endl;
 
-    //bool good_icp = std::abs(dx_error) < 0.01 && std::abs(dy_error) < 0.01 && std::abs(dtheta_error) < 0.02;
+    bool good_icp = std::abs(dx_error) < 0.01 && std::abs(dy_error) < 0.01 && std::abs(dtheta_error) < 0.02;
 
     double fused_dx = dx_local;
     double fused_dy = dy_local;
     double fused_dtheta = odom_dtheta;
  
-    //if(good_icp){
+    if(good_icp && !(odom_step < 0.003 && std::abs(odom_dtheta) < 0.003)){
         double alpha_pos = 0.3;
         double alpha_yaw = 0.4;
         fused_dx = (1.0 - alpha_pos) * dx_local + alpha_pos * icp_dx;
         fused_dy = (1.0 - alpha_pos) * dy_local + alpha_pos * icp_dy;
         fused_dtheta = normalizeAngle((1.0 - alpha_yaw) * odom_dtheta + alpha_yaw * icp_theta);
-    //}
+    }
 
     fused_dist += std::hypot(fused_dx, fused_dy);
     odom_dist += std::hypot(dx_local, dy_local);
