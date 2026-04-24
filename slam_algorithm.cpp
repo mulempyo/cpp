@@ -194,7 +194,7 @@ namespace graph_slam {
 
     double odom_step = std::hypot(dx_local, dy_local);      
 
-    if(std::abs(dx_local) < 1e-08 && std::abs(dy_local) < 1e-05 && std::abs(odom_dtheta) < 0.00001){
+    if(std::abs(odom_x) < 0.00001 && std::abs(odom_y) < 0.0001 && std::abs(odom_theta) < 0.001){
        icp_dx = 0.0;
        icp_dy = 0.0;
        icp_theta = 0.0;
