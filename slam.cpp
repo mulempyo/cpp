@@ -474,8 +474,8 @@ void GraphSlamNode::updateMap(const sensor_msgs::msg::LaserScan::ConstSharedPtr 
     int gy1 = std::min((int)map_.info.height,
                        gy0 + (int)submap.info.height);
 
-    for (int y = 0; y < map_.info.height; ++y) {
-        for (int x = 0; x < map_.info.width; ++x) {
+    for (int y = gy0; y < gy1; ++y) {
+        for (int x = gx0; x < gx1; ++x) {
             int idx = MAP_IDX(map_.info.width, x, y);
 
             if (std::abs(log_odds_map[idx]) < 1e-6f) {
