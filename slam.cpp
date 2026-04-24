@@ -460,8 +460,8 @@ void GraphSlamNode::updateMap(const sensor_msgs::msg::LaserScan::ConstSharedPtr 
           int gx = static_cast<int>(std::floor((worldX - map_.info.origin.position.x) / delta_));
           int gy = static_cast<int>(std::floor((worldY - map_.info.origin.position.y) / delta_));
 
-          //submap.info.origin.position.x = robot_x - 0.5 * submap.info.width * delta_;
-          //submap.info.origin.position.y = robot_y - 0.5 * submap.info.height * delta_;
+          submap.info.origin.position.x = robot_x - 0.5 * submap.info.width * delta_;
+          submap.info.origin.position.y = robot_y - 0.5 * submap.info.height * delta_;
 
           drawLineGlobal(laser_gx, laser_gy, gx, gy);   
       }
