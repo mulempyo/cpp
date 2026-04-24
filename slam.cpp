@@ -232,6 +232,7 @@ bool GraphSlamNode::addScan(const sensor_msgs::msg::LaserScan& scan, Eigen::Vect
     if(slam_->num_vertices() == 0){
         g2o::VertexSE2* first_node = slam_->add_se2_node(odom_pose);
         first_pose = odom_pose;
+        previous_pose = odom_pose;
         if(!first_node){
             RCLCPP_ERROR(node_->get_logger(), "Failed to add fisrt node to graph!");
             return false;
