@@ -159,6 +159,7 @@ namespace graph_slam {
     }
 
     static double odom_dist = 0.0;
+    static double fused_sum_dtheta = 0.0;
 
     // odom relative motion in previous local(base) frame
     double odom_dx = current_pose.x() - previous_pose.x();
@@ -171,9 +172,9 @@ namespace graph_slam {
     double dx_local =  std::cos(yaw1) * odom_dx + std::sin(yaw1) * odom_dy;
     double dy_local = -std::sin(yaw1) * odom_dx + std::cos(yaw1) * odom_dy;
 
-    std::cout << "dx_local: " << dx_local
+    /*std::cout << "dx_local: " << dx_local
           << " dy_local: " << dy_local
-          << " odom_dtheta: " << odom_dtheta << std::endl;
+          << " odom_dtheta: " << odom_dtheta << std::endl;*/
 
     init_guess(0,0) = std::cos(odom_dtheta);
     init_guess(0,1) = -std::sin(odom_dtheta);
@@ -188,9 +189,9 @@ namespace graph_slam {
     double icp_dy = T(1, 3);
     double icp_theta = std::atan2(T(1,0), T(0,0));
 
-    std::cout << "icp_dx: " << icp_dx
+    /*std::cout << "icp_dx: " << icp_dx
           << " icp_dy: " << icp_dy
-          << " icp_theta: " << icp_theta << std::endl;
+          << " icp_theta: " << icp_theta << std::endl;*/
 
     double odom_step = std::hypot(dx_local, dy_local);      
 
@@ -205,15 +206,15 @@ namespace graph_slam {
     double dy_error = icp_dy - odom_dy;
     double dtheta_error = normalizeAngle(icp_theta - odom_dtheta);
 
-    std::cout << "dx_error: " << dx_error
+    /*std::cout << "dx_error: " << dx_error
           << " dy_error: " << dy_error
           << " dtheta_error: " << dtheta_error << std::endl;
 
-    bool good_icp = std::abs(dx_error) < 0.01 && std::abs(dy_error) < 0.001 && std::abs(dtheta_error) < 0.02;
+    bool good_icp = std::abs(dx_error) < 0.01 && std::abs(dy_error) < 0.001 && std::abs(dtheta_error) < 0.02;*/
 
     double fused_dx = dx_local;
     double fused_dy = dy_local;
-    double fused_dtheta = dtheta_error;
+    double fused_dtheta = odom_dtheta;
  
     if(good_icp && !(odom_step < 0.003 && std::abs(odom_dtheta) < 0.003)){
         double alpha_pos = 0.3;
@@ -225,9 +226,12 @@ namespace graph_slam {
 
     fused_dist += std::hypot(fused_dx, fused_dy);
     odom_dist += std::hypot(dx_local, dy_local);
+    fused_sum_dtheta = normalizeAngle(fused_sum_dtheta + fused_dtheta); 
 
     std::cout << "fused dist: " << fused_dist << std::endl;
     std::cout << "odom_dist: " << odom_dist << std::endl;
+
+    std::cout << " fused_sum_dtheta: " << fused_sum_dtheta << std::endl;
 
     return Eigen::Vector3d(
         fused_dx,
